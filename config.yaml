@@ -1,0 +1,193 @@
+database:
+  # Caminho do banco DuckDB oficial corporativo
+  db_path: "data/banco.duckdb"
+
+  # Número máximo de linhas enviadas ao LLM para síntese da resposta
+  max_rows_context: 15
+
+  # Timeout máximo (em segundos) para execução de uma query
+  query_timeout: 30
+
+llm:
+  # Backend do LLM: "groq" (com fallback para GitHub Models), "ollama" (local) ou "openai"
+  backend: "groq"
+
+  # Modelo Groq principal (com failover para GitHub Models)
+  groq_model: "llama-3.3-70b-versatile"
+  github_model: "gpt-4o-mini"
+
+  # Modelo Ollama local (caso backend = "ollama")
+  ollama_model: "qwen2.5-coder:7b"
+  ollama_base_url: "http://localhost:11434"
+
+  # Modelo OpenAI (utilizado quando backend = "openai")
+  openai_model: "gpt-4o-mini"
+
+  # Temperatura do LLM (0.0 = determinístico)
+  temperature: 0.0
+
+  # Máximo de tentativas de auto-recuperação em caso de erro SQL
+  max_retries: 2
+
+security:
+  # Defesa em Profundidade: conexão read-only nativa
+  read_only_connection: true
+
+  # Controle de Complexidade AST
+  max_joins: 3
+  max_subqueries: 2
+  max_explain_cost: 5000
+  max_result_bytes: 5242880  # 5 MB
+  auto_limit: 100
+
+  # Rate Limiting & Circuit Breaker
+  rate_limit_per_minute: 30
+  circuit_breaker_failures: 3
+  circuit_breaker_window_seconds: 300
+  circuit_breaker_cooldown_seconds: 900
+
+  # Observabilidade e Alertas
+  rejection_rate_baseline: 0.20
+  timeout_warning_threshold_ms: 24000
+
+  # Allowlist explícita de tabelas e colunas autorizadas
+  allowlist:
+    faturamento:
+      - CONCATENADO
+      - MONTH
+      - Filial
+      - Mês/Ano
+      - Origem
+      - Setor
+      - Emissão
+      - Num. Docto.
+      - Série
+      - Cód. Cliente
+      - Nome Cliente
+      - CNPJ/CPF
+      - Estado
+      - Município
+      - Cód. Vend.
+      - Nome Vendedor
+      - TES
+      - CFOP
+      - Item
+      - Cód. Prod.
+      - Desc. Produto
+      - Cod. Familia
+      - Desc. Familia
+      - Cód. Custo
+      - Desc. C Custo
+      - Grupo
+      - Tipo
+      - FAT - Quant.
+      - DEV - Quant.
+      - LIQ - Quant.
+      - Vlr. Produtos
+      - Vlr. Mercadoria (bruto)
+      - Desconto
+      - Cód. Condição
+      - Desconto VD
+      - Servicos VD
+      - Valor Contábil
+      - Vlr.IPI
+      - Vlr.ICMS
+      - Vlr. ISS
+      - PIS
+      - COFINS
+      - ICMS DIFAL Origem
+      - ICMS DIFAL Destino
+      - ICMS Fundo de Pobreza
+      - Fat. Líquido
+      - Custo Médio Total
+      - Custo Médio Unitário
+      - Origem Custo Médio
+      - Margem Bruta (%)
+      - Margem Bruta (R$)
+      - Vendedor Ajustado
+      - Data Ajust.
+      - Valor Contábil Ajustado
+      - Fat. Líquido Ajustado
+      - Custo Total Ajustado
+      - Margem Bruta Ajustada
+      - Preço Médio
+      - Preço Serv. VD
+      - Custo Médio
+      - Custo Serv. VD
+      - CNPJ Aj.
+      - No. NF Aj.
+      - Cod. Prod. Aj.
+      - NF + Prod.
+      - Roadmap
+      - Linha (Família + BU)
+      - Familia Ajustada
+      - BU Família
+      - BU Prod.
+      - BU Cliente
+      - Business Unit
+      - TOP 10
+      - PRODUTOS
+      - Cliente REAL
+      - Forçar BU
+      - CUT-OFF
+      - DIA
+      - Mês
+      - Semana
+      - Ano
+      - Bu Centro de Custo
+      - DIF Bus
+      - BU - Vendedor
+      - CODIGO/DESCRIÇÃO
+      - Dia Semana
+      - Trimestre
+      - Semestre
+      - ML%
+      - Tipo de Estoque
+      - FAT - Vend.Interno
+      - FAT - Nome Vend.Int
+      - TX Moeda
+      - Empresa
+      - Moeda
+      - Conversao
+      - Vlr Negociado
+      - FAT - Estado-Ent
+      - FAT - Município-Ent
+      - Campanha
+      - ProdutoCamp
+      - Classificação Ccusto
+      - Mês-Ano
+      - ECOMERCE
+      - Ajustar MB
+      - LIQ - Margem Bruta (R$)- Produtos MB <15%
+      - LIQ - Custo Medio Total- Produtos MB <15%
+      - MB% Produtos MB <15%
+      - LIQ - Custo Medio Total- Produtos MB >15%
+      - LIQ - Custo Medio Total- Ajustado
+      - LIQ - Custo Medio Unit.- Ajustado
+      - Custo Total- Ajustado
+      - LIQ - MB (R$)- AJU
+      - Sistema Operacional
+      - Segmento do Produto
+      - Canal de Venda
+      - Tipo de Venda
+      - Mês/Ano c/ CUTOFF
+      - Ano C/ CUTOFF
+      - Emissão c/ CUTOFF
+      - Loja Virtual
+      - Projetos
+      - Vendas em Dólar
+      - Subfamília
+      - Status
+      - RAIZ CNPJ
+      - E-COMERCE
+      - ODM
+    usuarios:
+      - id
+      - cliente
+      - idade
+      - cidade
+      - bu
+      - faturamento
+      - data_cadastro
+      - ultima_compra
+

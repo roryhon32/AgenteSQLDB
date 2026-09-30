@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+build/
+dist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+.venv*/
+env/
+venv/
+ENV/
+
+# Environment variables & secrets (CRITICAL: NEVER COMMIT REAL KEYS)
+.env
+.env.*
+.env.local
+!.env.example
+
+# Database & local data files (CRITICAL: NEVER COMMIT DATABASE STORAGE OR SENSITIVE RECORDS)
+data/
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs & temporary files
+*.log
+logs/
+
+# Unit test & coverage reports
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor & OS artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

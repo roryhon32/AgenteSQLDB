@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milia AI Docs — Documentação Técnica Oficial (AgenteSQL)</title>
+  
+  <!-- Favicon / Meta -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310B981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M9 9h6v6H9z'/><path d='M9 1v2m6-2v2M9 21v2m6-2v2M1 9h2m-2 6h2M21 9h2m-2 6h2'/></svg>">
+  
+  <!-- Fontes Google (Inter & JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Highlight.js para Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+
+  <!-- Mermaid.js para Diagramas Dinâmicos -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <style>
+    /* -------------------------------------------------------------------------
+       LANGCHAIN / MINTLIFY DESIGN SYSTEM TOKENS
+       ------------------------------------------------------------------------- */
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+
+      /* Dark Mode Palette (Default) */
+      --bg-main: #0B0F19;
+      --bg-sidebar: #0D1117;
+      --bg-card: #131B2E;
+      --bg-card-hover: #1E293B;
+      --bg-input: #161F30;
+      
+      --border-subtle: #1E293B;
+      --border-strong: #334155;
+      --border-focus: #10B981;
+
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --text-link: #38BDF8;
+
+      /* LangChain Accent Colors */
+      --emerald-primary: #10B981;
+      --emerald-dark: #059669;
+      --emerald-light: #34D399;
+      --emerald-glow: rgba(16, 185, 129, 0.15);
+
+      --blue-accent: #2563EB;
+      --blue-glow: rgba(37, 99, 235, 0.15);
+      --amber-accent: #F59E0B;
+      --rose-accent: #F43F5E;
+      --purple-accent: #8B5CF6;
+
+      --code-bg: #0F172A;
+      --header-height: 64px;
+      --sidebar-width: 290px;
+      --toc-width: 230px;
+    }
+
+    html.light {
+      --bg-main: #FFFFFF;
+      --bg-sidebar: #F8FAFC;
+      --bg-card: #F1F5F9;
+      --bg-card-hover: #E2E8F0;
+      --bg-input: #F1F5F9;
+      
+      --border-subtle: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --border-focus: #10B981;
+
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      --text-link: #0284C7;
+
+      --code-bg: #1E293B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.65;
+      font-size: 15px;
+      overflow-x: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* -------------------------------------------------------------------------
+       TOP NAVIGATION BAR
+       ------------------------------------------------------------------------- */
+    .top-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    html.light .top-navbar {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(37, 99, 235, 0.2));
+      border: 1px solid var(--emerald-primary);
+      border-radius: 8px;
+      font-size: 18px;
+      box-shadow: 0 0 16px var(--emerald-glow);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .version-pill {
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald-light);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Search Bar */
+    .search-container {
+      position: relative;
+      flex: 1;
+      max-width: 440px;
+      margin: 0 24px;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 38px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0 40px 0 36px;
+      color: var(--text-primary);
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--emerald-primary);
+      box-shadow: 0 0 0 3px var(--emerald-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-kbd {
+      position: absolute;
+      right: 10px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--bg-main);
+      color: var(--text-muted);
+      border: 1px solid var(--border-strong);
+      padding: 2px 6px;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    /* Top Nav Actions */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-link-btn {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+
+    .theme-toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    /* -------------------------------------------------------------------------
+       MAIN APPLICATION LAYOUT (3-COLUMN)
+       ------------------------------------------------------------------------- */
+    .docs-layout {
+      display: flex;
+      margin-top: var(--header-height);
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    /* Left Sidebar Navigation */
+    .docs-sidebar {
+      width: var(--sidebar-width);
+      position: sticky;
+      top: var(--header-height);
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      padding: 24px 16px;
+      flex-shrink: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    .nav-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 18px 0 8px 12px;
+    }
+
+    .nav-group-title:first-child {
+      margin-top: 0;
+    }
+
+    .sidebar-nav-list {
+      list-style: none;
+    }
+
+    .sidebar-nav-item {
+      margin-bottom: 2px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: var(--text-primary);
+      background: var(--bg-card);
+    }
+
+    .sidebar-link.active {
+      color: var(--emerald-light);
+      background: var(--emerald-glow);
+      border-left-color: var(--emerald-primary);
+      font-weight: 600;
+    }
+
+    .sidebar-icon {
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    /* Main Content Area */
+    .docs-content {
+      flex: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 48px 80px 48px;
+      min-width: 0;
+    }
+
+    /* Right Table of Contents */
+    .docs-toc {
+      width: var(--toc-width);
+      position: sticky;
+      top: var(--header-height);
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      padding: 40px 20px 40px 10px;
+      flex-shrink: 0;
+      font-size: 12.5px;
+      display: block;
+    }
+
+    .toc-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toc-list {
+      list-style: none;
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .toc-item {
+      margin-bottom: 6px;
+    }
+
+    .toc-link {
+      display: block;
+      padding: 4px 0 4px 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      line-height: 1.4;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+      transition: all 0.15s ease;
+    }
+
+    .toc-link:hover {
+      color: var(--text-primary);
+    }
+
+    .toc-link.active {
+      color: var(--emerald-light);
+      border-left-color: var(--emerald-primary);
+      font-weight: 600;
+    }
+
+    /* -------------------------------------------------------------------------
+       TYPOGRAPHY & PROSE STYLING
+       ------------------------------------------------------------------------- */
+    .breadcrumb-trail {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .breadcrumb-trail a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .breadcrumb-trail a:hover {
+      color: var(--emerald-light);
+    }
+
+    h1.doc-title {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      color: #FFFFFF;
+    }
+
+    html.light h1.doc-title {
+      color: #0F172A;
+    }
+
+    .doc-lead {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    .doc-section {
+      margin-bottom: 56px;
+      padding-top: 16px;
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 36px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 24px 0 12px 0;
+      color: var(--text-primary);
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    p strong, li strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    ul, ol {
+      margin-bottom: 18px;
+      padding-left: 24px;
+      color: var(--text-secondary);
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    
+    /* Status Pills for tables */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-pill-deny {
+      background: rgba(244, 63, 94, 0.12);
+      color: #FB7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .status-pill-allow {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald-light);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-blue {
+      background: rgba(37, 99, 235, 0.15);
+      color: #60A5FA;
+      border: 1px solid rgba(37, 99, 235, 0.3);
+    }
+
+    .badge-purple {
+      background: rgba(139, 92, 246, 0.15);
+      color: #A78BFA;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FCD34D;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-rose {
+      background: rgba(244, 63, 94, 0.15);
+      color: #FDA4AF;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    /* -------------------------------------------------------------------------
+       CALLOUTS / ADMONITIONS (MINTLIFY STYLE)
+       ------------------------------------------------------------------------- */
+    .callout {
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      border-left: 4px solid;
+      background: var(--bg-card);
+      position: relative;
+    }
+
+    .callout-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    .callout-tip {
+      border-left-color: var(--emerald-primary);
+      background: rgba(16, 185, 129, 0.08);
+      border-top: 1px solid rgba(16, 185, 129, 0.2);
+      border-right: 1px solid rgba(16, 185, 129, 0.2);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .callout-tip .callout-header { color: var(--emerald-light); }
+
+    .callout-info {
+      border-left-color: var(--blue-accent);
+      background: rgba(37, 99, 235, 0.08);
+      border-top: 1px solid rgba(37, 99, 235, 0.2);
+      border-right: 1px solid rgba(37, 99, 235, 0.2);
+      border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+    }
+    .callout-info .callout-header { color: #60A5FA; }
+
+    .callout-warning {
+      border-left-color: var(--amber-accent);
+      background: rgba(245, 158, 11, 0.08);
+      border-top: 1px solid rgba(245, 158, 11, 0.2);
+      border-right: 1px solid rgba(245, 158, 11, 0.2);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .callout-warning .callout-header { color: #FCD34D; }
+
+    .callout-danger {
+      border-left-color: var(--rose-accent);
+      background: rgba(244, 63, 94, 0.08);
+      border-top: 1px solid rgba(244, 63, 94, 0.2);
+      border-right: 1px solid rgba(244, 63, 94, 0.2);
+      border-bottom: 1px solid rgba(244, 63, 94, 0.2);
+    }
+    .callout-danger .callout-header { color: #FDA4AF; }
+
+    /* -------------------------------------------------------------------------
+       CODE BLOCKS & COPY BUTTON
+       ------------------------------------------------------------------------- */
+    .code-wrapper {
+      position: relative;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: var(--code-bg);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--text-secondary);
+      padding: 4px 9px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-color: var(--emerald-primary);
+    }
+
+    pre code.hljs {
+      padding: 16px !important;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.55;
+      background: transparent !important;
+    }
+
+    /* Inline code */
+    :not(pre) > code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #38BDF8;
+      padding: 2px 6px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    html.light :not(pre) > code {
+      background: #E2E8F0;
+      color: #0284C7;
+      border-color: #CBD5E1;
+    }
+
+    /* -------------------------------------------------------------------------
+       DATA TABLES
+       ------------------------------------------------------------------------- */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    table.doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+
+    table.doc-table th {
+      background: var(--bg-card);
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    table.doc-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    table.doc-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.doc-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* -------------------------------------------------------------------------
+       MERMAID DIAGRAM WRAPPERS
+       ------------------------------------------------------------------------- */
+    .mermaid-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    .mermaid {
+      font-family: var(--font-sans) !important;
+    }
+
+    /* -------------------------------------------------------------------------
+       STEPS LIST (MINTLIFY STYLE)
+       ------------------------------------------------------------------------- */
+    .steps-container {
+      position: relative;
+      margin: 24px 0;
+      padding-left: 36px;
+    }
+
+    .steps-container::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      bottom: 14px;
+      left: 14px;
+      width: 2px;
+      background: var(--border-strong);
+    }
+
+    .step-item {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .step-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      position: absolute;
+      left: -36px;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--emerald-primary);
+      color: var(--emerald-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    /* -------------------------------------------------------------------------
+       RESPONSIVE DESIGN
+       ------------------------------------------------------------------------- */
+    @media (max-width: 1100px) {
+      .docs-toc {
+        display: none;
+      }
+      .docs-content {
+        max-width: 100%;
+        padding: 32px 32px 64px 32px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .docs-sidebar {
+        position: fixed;
+        left: -100%;
+        top: var(--header-height);
+        bottom: 0;
+        z-index: 99;
+        transition: left 0.3s ease;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+      }
+
+      .docs-sidebar.open {
+        left: 0;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .search-container {
+        display: none;
+      }
+
+      .docs-content {
+        padding: 24px 18px 60px 18px;
+      }
+
+      h1.doc-title {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVBAR -->
+  <header class="top-navbar">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Abrir Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/documentation" class="brand-section">
+        <div class="brand-logo-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          Milia AI
+          <span class="version-pill">v2.0.0 Docs</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="docSearch" class="search-input" placeholder="Buscar na documentação técnica..." onkeyup="filterDocs(event)">
+        <span class="search-kbd">Ctrl K</span>
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      <a href="/home" class="nav-link-btn" title="Ir para o Chat Analítico">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        App
+      </a>
+      <a href="/frontend/demo-animations.html" class="nav-link-btn" title="Vitrine de Animações GSAP">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Showcase UI
+      </a>
+      <a href="https://github.com/roryhon32/AgenteGertc" target="_blank" class="nav-link-btn" title="Repositório no GitHub">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" title="Alternar Modo Escuro/Claro">
+        <span id="themeIcon" style="display:flex;align-items:center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- DOCS LAYOUT -->
+  <div class="docs-layout">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="docs-sidebar" id="docsSidebar">
+      
+      <div class="nav-group-title">Comece Aqui</div>
+      <ul class="sidebar-nav-list">
+        <li class="sidebar-nav-item">
+          <a href="#visao-geral" class="sidebar-link active">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span>
+            Visão Geral
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#arquitetura" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>
+            Arquitetura do Sistema
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#fluxo-requisicao" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+            Fluxo da Requisição (7 Esteiras)
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-group-title">Inteligência & Zero-Trust</div>
+      <ul class="sidebar-nav-list">
+        <li class="sidebar-nav-item">
+          <a href="#integracao-llm" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></span>
+            Integração LLM (Groq + GitHub)
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#isolamento-zero-trust" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            Isolamento da LLM (Zero-Trust)
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#text-to-sql-vs-rag" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+            Text-to-SQL vs. RAG Vetorial
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-group-title">Segurança & Governança</div>
+      <ul class="sidebar-nav-list">
+        <li class="sidebar-nav-item">
+          <a href="#seguranca-governanca" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            Segurança em Profundidade
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#modelo-ameacas" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+            Modelo de Ameaças
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#ciclo-dados" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+            Ciclo dos Dados & Privacidade
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-group-title">Engenharia & Operação</div>
+      <ul class="sidebar-nav-list">
+        <li class="sidebar-nav-item">
+          <a href="#estrutura-projeto" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg></span>
+            Estrutura do Repositório
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#execucao-testes" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></span>
+            Como Executar e Testar
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="#guia-extensao" class="sidebar-link">
+            <span class="sidebar-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            Guia de Extensão
+          </a>
+        </li>
+      </ul>
+
+    </aside>
+
+    <!-- CENTER PROSE CONTENT -->
+    <main class="docs-content">
+      
+      <!-- Breadcrumb -->
+      <div class="breadcrumb-trail">
+        <a href="#">Documentação Oficial</a>
+        <span>/</span>
+        <a href="#arquitetura">Arquitetura de Software</a>
+        <span>/</span>
+        <span style="color: var(--text-primary);">Manual de Engenharia</span>
+      </div>
+
+      <h1 class="doc-title">Milia AI — Agente SQL & Plataforma Analítica</h1>
+      <p class="doc-lead">
+        Documentação técnica de arquitetura, esteiras de governança, isolamento Zero-Trust e engenharia Text-to-SQL sobre DuckDB corporativo.
+      </p>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;">
+        <span class="badge badge-emerald">Python 3.13+</span>
+        <span class="badge badge-blue">FastAPI ASGI</span>
+        <span class="badge badge-purple">DuckDB 1.5+</span>
+        <span class="badge badge-amber">Groq LPU 70B</span>
+        <span class="badge badge-rose">SHA-256 Audit Chain</span>
+      </div>
+
+      <!-- SEÇÃO 1: VISÃO GERAL -->
+      <section id="visao-geral" class="doc-section">
+        <h2>1. Visão Geral</h2>
+        <p>
+          O <strong>Milia AI</strong> é uma plataforma analítica corporativa e agente conversacional <em>Text-to-SQL</em> com governança rigorosa em profundidade. O sistema converte perguntas de negócio expressas em português livre em consultas SQL determinísticas, otimizadas e seguras, executadas sobre o motor colunar <strong>DuckDB</strong>.
+        </p>
+
+        <div class="callout callout-tip">
+          <div class="callout-header">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg> Regra Fundamental de Negócio
+          </div>
+          <p>
+            No ecossistema corporativo da Milia, a métrica oficial de <strong>faturamento, receita ou vendas</strong> é sempre mapeada compulsoriamente para a coluna <code>"Valor Contábil"</code> (ex: <code>SUM("Valor Contábil")</code>). Colunas como <code>Fat. Bruto</code> não existem na base e são estritamente rejeitadas.
+          </p>
+        </div>
+
+        <h3>Perfis de Acesso e Matriz de Permissões</h3>
+        <div class="table-container">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Perfil / Tag</th>
+                <th>Unidade de Negócio (BU)</th>
+                <th>Escopo de Visualização</th>
+                <th>Capacidades</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Colaborador Padrão</strong></td>
+                <td><code>Varejo</code></td>
+                <td>Exclusivo da própria BU</td>
+                <td>Consultas analíticas restritas aos dados de sua unidade. Tentativas de acessar outras BUs são interceptadas no RLS.</td>
+              </tr>
+              <tr>
+                <td><strong>Especialista</strong></td>
+                <td><code>Serviços</code> ou <code>Corporativo</code></td>
+                <td>Exclusivo da respectiva BU</td>
+                <td>Análise detalhada de clientes, produtos e margens da sua divisão.</td>
+              </tr>
+              <tr>
+                <td><strong>Acesso Global</strong></td>
+                <td>Todas as BUs</td>
+                <td>Irrestrito Corporativo</td>
+                <td>Exige as 3 tags simultâneas: <code>fiscal</code>, <code>contabil</code> e <code>adm</code>. Permite consolidado de todas as unidades.</td>
+              </tr>
+              <tr>
+                <td><strong>Administrador</strong></td>
+                <td>Qualquer BU</td>
+                <td>Painel de Gestão & Auditoria</td>
+                <td>Aprovação de usuários pendentes, verificação de integridade SHA-256 e visualização de incidentes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 2: ARQUITETURA -->
+      <section id="arquitetura" class="doc-section">
+        <h2>2. Arquitetura do Sistema</h2>
+        <p>
+          O sistema foi projetado sob o princípio de <strong>desacoplamento estrito</strong> e <strong>defesa em profundidade</strong>. A camada de apresentação (SPA moderna acelerada com GSAP 3) comunica-se exclusivamente com a API RESTful em FastAPI, que atua como barreira perimetral antes de qualquer contato com o modelo de inteligência artificial ou motor analítico.
+        </p>
+
+        <div class="mermaid-card">
+          <div class="mermaid">
+flowchart TD
+    Client["Client Web (SPA / GSAP 3)"] -->|POST /api/chat/query| FastAPI["Gateway FastAPI (app.py)"]
+    FastAPI --> RL["RateLimiter (Sliding Window 60s)"]
+    RL --> CB["SecurityCircuitBreaker (3 Strikes / 15m)"]
+    CB --> Scope["ScopeGuardrail (Intenção & Anti-Injection)"]
+    Scope --> Agent["AnalyticalAgent (Prompt Engine)"]
+    Agent --> Schema["DuckDB Schema Introspection"]
+    Agent --> Groq["GroqCloud (Llama 3.3 70B LPU)"]
+    Groq -.->|Fallback 429| GHModels["GitHub Models (gpt-4o-mini Azure AI)"]
+    Groq --> RLS["RLSEnforcer (Isolamento por BU)"]
+    GHModels --> RLS
+    RLS --> SQLG["SQLGuardrail (Auto LIMIT 100 & AST Check)"]
+    SQLG --> DBM["DatabaseManager (DuckDB Read-Only)"]
+    DBM --> DuckDB[("banco.duckdb")]
+    DBM --> Render["_render_template (Renderização Local em Python)"]
+    Render --> Client
+    Render -.-> Audit["ImmutableAuditService (Hash SHA-256)"]
+    Audit --> SQLite[("users.db (SQLite)")]
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 3: FLUXO DA REQUISIÇÃO (7 ESTEIRAS) -->
+      <section id="fluxo-requisicao" class="doc-section">
+        <h2>3. Fluxo de uma Requisição: As 7 Esteiras Sequenciais</h2>
+        <p>
+          Toda mensagem enviada pelo usuário percorre obrigatoriamente <strong>7 esteiras de controle contínuo</strong> implementadas no método <code>execute_chat_query</code> em <code>src/sql_agent/chat/router.py</code>. Nenhuma etapa pode ser pulada.
+        </p>
+
+        <div class="steps-container">
+          
+          <div class="step-item">
+            <div class="step-number">0</div>
+            <div class="step-title">Perímetro de Segurança & Proteção de DoS</div>
+            <p>
+              O <code>SecurityCircuitBreaker</code> verifica se o usuário está suspenso por infrações repetidas de segurança. Em seguida, o <code>RateLimiter</code> garante que a quota máxima de <strong>30 requisições/minuto</strong> em janela deslizante de 60s não seja excedida.
+            </p>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-title">Input Guardrail (Escopo, Ambiguidades e Prompt Injection)</div>
+            <p>
+              O <code>ScopeGuardrail</code> avalia o texto do usuário:
+              <br>• <strong>Saudações / Descoberta de Schema:</strong> Responde imediatamente sem acionar a LLM, economizando tokens e latência.
+              <br>• <strong>Perguntas Ambíguas:</strong> Solicita esclarecimento antes de gerar consultas desnecessárias.
+              <br>• <strong>Prompt Injection / Fuga de Escopo:</strong> Bloqueia tentativas adversariais e grava incidente com severidade <code>CRITICAL</code>.
+            </p>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-title">Text-to-SQL Agent (Compilação Semântica)</div>
+            <p>
+              O <code>AnalyticalAgent</code> introspecta o schema oficial do DuckDB em tempo de execução e submete ao modelo (Groq ou GitHub Models com <code>temperature=0.0</code>). O modelo compila a intenção em um JSON com SQL sugerido e um <code>row_template</code> de exibição.
+            </p>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-title">Row-Level Security Enforcement (RLS)</div>
+            <p>
+              O <code>RLSEnforcer</code> valida se o usuário possui acesso global. Caso contrário, qualquer menção a outra Unidade de Negócio é interceptada com <code>risk_type="Violação de BU"</code> e a cláusula da BU do usuário logado é aplicada.
+            </p>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-title">Auto LIMIT 100 & SQL Guardrail (Blindagem AST)</div>
+            <p>
+              O <code>SQLGuardrail</code> injeta compulsoriamente <code>LIMIT 100</code> no SQL, verifica se a query começa estritamente com <code>SELECT</code> ou <code>WITH</code>, rejeita múltiplos statements (<code>;</code>) e bloqueia comandos DDL/DML.
+            </p>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">5</div>
+            <div class="step-title">DuckDB Execution Sandbox (Modo Read-Only)</div>
+            <p>
+              O <code>DatabaseManager</code> submete a query ao comando <code>EXPLAIN</code>. Se o custo computacional for $\ge 5000$, a query é cancelada preventivamente. A execução ocorre com timeout de 30s e teto de 5 MB de resultado em memória. Em caso de erro sintático, o mecanismo de <strong>Self-Healing</strong> tenta corrigir o SQL em até 2 rodadas.
+            </p>
+          </div>
+
+          <div class="step-item">
+            <div class="step-number">6</div>
+            <div class="step-title">Renderização Local Zero-Trust & Trilha de Auditoria</div>
+            <p>
+              <strong>Os dados do banco NUNCA são reenviados para a LLM</strong>. O método <code>_render_template</code> em Python preenche as variáveis no template localmente com formatação monetária (<code>R$</code>). A transação é registrada na trilha com hash encadeado SHA-256 e redação PII (LGPD).
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SEÇÃO 4: INTEGRAÇÃO LLM -->
+      <section id="integracao-llm" class="doc-section">
+        <h2>4. Integração e Ciclo de Vida da LLM</h2>
+        <p>
+          Para assegurar resiliência contínua, o sistema implementa alta disponibilidade através do método <code>.with_fallbacks()</code> do LangChain:
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>src/sql_agent/config/settings.py</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-python"># Fábrica de LLM com Failover Transparente
+if primary_llm and fallback_llm:
+    # Se a Groq atingir HTTP 429 ou indisponibilidade, GitHub Models assume instantaneamente
+    return primary_llm.with_fallbacks([fallback_llm])
+elif primary_llm:
+    return primary_llm
+elif fallback_llm:
+    return fallback_llm
+          </code></pre>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-header">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Conhecimento da LLM vs. Contexto da Aplicação
+          </div>
+          <p>
+            A LLM não possui memória prévia sobre as tabelas da Milia. O conhecimento vem 100% da <strong>introspecção em tempo real</strong> via <code>fetch_database_schema()</code> injetada dinamicamente no system prompt. Se uma coluna não estiver no schema, a IA é orientada a retornar <code>SCHEMA_INSUFICIENTE</code>.
+          </p>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 5: ISOLAMENTO ZERO-TRUST -->
+      <section id="isolamento-zero-trust" class="doc-section">
+        <h2>5. Isolamento da LLM & Filosofia Zero-Trust</h2>
+        <p>
+          No Milia AI, a LLM é tratada estritamente como um <strong>compilador linguístico sem privilégios de acesso</strong>. Ela não faz parte do perímetro seguro interno.
+        </p>
+
+        <div class="table-container">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Recurso do Sistema</th>
+                <th>Acesso Direto pela LLM?</th>
+                <th>Mecanismo que Garante o Bloqueio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Conexão DuckDB</strong></td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NÃO
+</span></td>
+                <td>O objeto DuckDBPyConnection é exclusivo do processo Python local. A LLM só troca strings via HTTP.</td>
+              </tr>
+              <tr>
+                <td><strong>Linhas / Dados Retornados</strong></td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NÃO
+</span></td>
+                <td>A função <code>_render_template</code> formata os dados localmente no backend. Nenhum dado de faturamento é reenviado à IA.</td>
+              </tr>
+              <tr>
+                <td><strong>Banco de Usuários (SQLite)</strong></td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NÃO
+</span></td>
+                <td>A tabela <code>users.db</code> sequer é informada no prompt do sistema.</td>
+              </tr>
+              <tr>
+                <td><strong>Sistema Operacional / Disco</strong></td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NÃO
+</span></td>
+                <td>Nenhum interpretador de código, subagente ou tool de shell está habilitado para o modelo.</td>
+              </tr>
+              <tr>
+                <td><strong>Isolamento de Outras BUs</strong></td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NÃO
+</span></td>
+                <td>O <code>RLSEnforcer</code> intercepta o SQL após a geração e aplica o filtro obrigatório da BU.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 6: SEGURANÇA E GOVERNANÇA -->
+      <section id="seguranca-governanca" class="doc-section">
+        <h2>6. Segurança em Profundidade</h2>
+
+        <h3>Trilha de Auditoria Imutável com Hash Encadeado (SHA-256)</h3>
+        <p>
+          Cada registro gravado na tabela <code>immutable_audit_log</code> é criptograficamente encadeado ao hash do registro anterior, formando uma estrutura Merkle sequencial. Triggers nativos no SQLite proíbem comandos <code>UPDATE</code> e <code>DELETE</code>:
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>Triggers de Proteção no SQLite (src/sql_agent/security/immutable_audit.py)</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-sql">CREATE TRIGGER IF NOT EXISTS trg_immutable_audit_no_update
+BEFORE UPDATE ON immutable_audit_log
+BEGIN
+    SELECT RAISE(FAIL, 'VIOLAÇÃO DE AUDITORIA: Registros imutáveis não podem ser modificados.');
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_immutable_audit_no_delete
+BEFORE DELETE ON immutable_audit_log
+BEGIN
+    SELECT RAISE(FAIL, 'VIOLAÇÃO DE AUDITORIA: Registros imutáveis não podem ser removidos.');
+END;
+          </code></pre>
+        </div>
+
+        <h3>Redação de PII e Proteção LGPD</h3>
+        <p>
+          O componente <code>PIIRedactor</code> mascara automaticamente CPFs, cartões de crédito, telefones e e-mails antes de qualquer persistência em logs de telemetria ou auditoria.
+        </p>
+      </section>
+
+      <!-- SEÇÃO 7: MODELO DE AMEAÇAS -->
+      <section id="modelo-ameacas" class="doc-section">
+        <h2>7. Modelo de Ameaças (Threat Model)</h2>
+        <div class="table-container">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Ameaça</th>
+                <th>Possibilidade</th>
+                <th>Mitigação Existente no Código</th>
+                <th>Limitação / Risco Residual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Prompt Injection</strong></td>
+                <td>Média</td>
+                <td>Regex pré-compiladas no <code>ScopeGuardrail</code> bloqueando jailbreaks antes de chamar a IA.</td>
+                <td>Injeções inéditas ou com ofuscação não prevista no dicionário podem alcançar o modelo.</td>
+              </tr>
+              <tr>
+                <td><strong>SQL Injection DDL/DML</strong></td>
+                <td>Muito Baixa</td>
+                <td>Conexão estrita <code>read_only=True</code>; proibição de múltiplos statements (<code>;</code>); bloqueio de comandos DDL.</td>
+                <td>Injeção de filtros analíticos (<code>OR 1=1</code>) pode alterar o recorte de visualização.</td>
+              </tr>
+              <tr>
+                <td><strong>Vazamento entre BUs</strong></td>
+                <td>Baixa</td>
+                <td><code>RLSEnforcer</code> valida e injeta o filtro da BU do usuário logado na query compilada.</td>
+                <td>Usuários com Acesso Global legítimo podem visualizar todas as BUs corporativas.</td>
+              </tr>
+              <tr>
+                <td><strong>Negação de Serviço (DoS)</strong></td>
+                <td>Baixa</td>
+                <td>Injeção compulsória de <code>LIMIT 100</code>; barreira de custo computacional <code>EXPLAIN</code> (&lt; 5000); teto de 5MB.</td>
+                <td>Consultas pesadas em bases gigabyte podem consumir picos temporários de CPU até o timeout de 30s.</td>
+              </tr>
+              <tr>
+                <td><strong>Abuso de API por Força Bruta</strong></td>
+                <td>Muito Baixa</td>
+                <td><code>RateLimiter</code> (30 req/min) e <code>SecurityCircuitBreaker</code> (suspensão de 15 min).</td>
+                <td>Os contadores residem na memória do processo; reiniciar o servidor reseta a janela.</td>
+              </tr>
+              <tr>
+                <td><strong>Adulteração de Auditoria</strong></td>
+                <td>Baixa</td>
+                <td>Triggers SQLite proibindo <code>UPDATE/DELETE</code>; encadeamento SHA-256 verificado matematicamente.</td>
+                <td>Acesso de escrita root direto ao arquivo <code>users.db</code> no SO poderia recalcular a cadeia.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 8: TEXT-TO-SQL VS RAG -->
+      <section id="text-to-sql-vs-rag" class="doc-section">
+        <h2>8. Decisão Arquitetural: Text-to-SQL vs. RAG Vetorial</h2>
+        <div class="callout callout-warning">
+          <div class="callout-header">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Por que o projeto NÃO utiliza RAG (Embeddings / Vector DB)?
+          </div>
+          <p>
+            RAG vetorial fatiaria relatórios e realizaria busca por similaridade de cosseno. Para perguntas numéricas como <em>"Qual o faturamento total da BU Varejo em 2026?"</em>, o RAG forçaria a LLM a calcular somas mentais sobre milhares de pedaços de texto, gerando alucinações e erros contábeis inaceitáveis. O <strong>Text-to-SQL sobre DuckDB</strong> executa somas analíticas determinísticas em milissegundos com precisão decimal exata.
+          </p>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 9: CICLO DE DADOS -->
+      <section id="ciclo-dados" class="doc-section">
+        <h2>9. Ciclo dos Dados e Privacidade</h2>
+        <div class="table-container">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Tipo de Informação</th>
+                <th>Onde é Persistida?</th>
+                <th>Vai para a LLM Externa?</th>
+                <th>Gravada em Auditoria?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pergunta do Usuário</strong></td>
+                <td>SQLite (<code>query_telemetry</code>)</td>
+                <td>Sim (para geração de SQL)</td>
+                <td>Sim (após redação PII)</td>
+              </tr>
+              <tr>
+                <td><strong>Nomes de Tabelas e Colunas</strong></td>
+                <td>DuckDB (Metadados de Schema)</td>
+                <td>Sim (injetado no System Prompt)</td>
+                <td>Apenas em metadados</td>
+              </tr>
+              <tr>
+                <td><strong>Linhas de Resultados Reais</strong></td>
+                <td>DuckDB (<code>banco.duckdb</code>)</td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NUNCA
+</span></td>
+                <td><span class="status-pill status-pill-deny"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Não</span> (apenas <code>row_count</code>)</td>
+              </tr>
+              <tr>
+                <td><strong>Senhas de Acesso</strong></td>
+                <td>SQLite (Hash Bcrypt)</td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NUNCA
+</span></td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NUNCA
+</span></td>
+              </tr>
+              <tr>
+                <td><strong>Cookies e Tokens JWT</strong></td>
+                <td>Headers HTTP / Navegador</td>
+                <td><span class="status-pill status-pill-deny">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  NUNCA
+</span></td>
+                <td>Redactado (<code>token=***</code>)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 10: ESTRUTURA DO PROJETO -->
+      <section id="estrutura-projeto" class="doc-section">
+        <h2>10. Estrutura do Repositório</h2>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>Árvore Completa do Projeto</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-bash">AgenteGertc/
+├── app.py                               # Servidor FastAPI e rotas corporativas
+├── main.py                              # Interface de linha de comando (CLI)
+├── config.yaml                          # Configurações de limites e modelos
+├── pyproject.toml                       # Manifesto de dependências e testes
+├── requirements.txt                     # Lockfile detalhado em UTF-8
+│
+├── data/
+│   ├── users.db                         # Banco SQLite (auth, incidentes, telemetria)
+│   └── banco.duckdb                     # Base analítica oficial da Milia
+│
+├── docs/
+│   └── DOCUMENTACAO_TECNICA.md          # Manual técnico Markdown oficial
+│
+├── frontend/
+│   ├── docs.html                        # Esta documentação no padrão LangChain
+│   ├── login.html                       # Aplicação SPA (Login e Chat Analítico)
+│   ├── demo-animations.html             # Vitrine interativa de animações GSAP
+│   └── animations/
+│       ├── auth-transition.js           # Transição cinematográfica (0.7s)
+│       └── gsap-feedback.js             # Micro-interações de feedback visual
+│
+├── src/sql_agent/
+│   ├── auth/                            # Autenticação JWT, SQLite e RBAC
+│   ├── chat/                            # Pipeline das 7 esteiras e telemetria
+│   ├── config/                          # LLM Factory (Groq + GitHub Models)
+│   ├── guardrails/                      # RLS, Scope e SQL Guardrail
+│   ├── security/                        # Circuit Breaker, Auditoria SHA-256 e PII
+│   └── v2/                              # Motor analítico V2 e renderização local
+│
+└── tests/                               # 32 Testes automatizados (pytest)
+          </code></pre>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 11: GUIA DE EXECUÇÃO -->
+      <section id="execucao-testes" class="doc-section">
+        <h2>11. Guia de Execução e Testes</h2>
+        
+        <h3>1. Instalação do Ambiente</h3>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>Terminal (Bash / PowerShell)</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-bash"># Criar ambiente virtual
+python -m venv .venv
+source .venv/bin/activate  # No Windows: .venv\Scripts\Activate.ps1
+
+# Instalar dependências
+pip install -r requirements.txt
+
+# Configurar variáveis de ambiente
+cp .env.example .env
+          </code></pre>
+        </div>
+
+        <h3>2. Inicialização do Servidor Web</h3>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-bash">uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+          </code></pre>
+        </div>
+
+        <p>Acessos disponíveis:</p>
+        <ul>
+          <li><strong>Chat Analítico / Login:</strong> <a href="http://127.0.0.1:8000" target="_blank" style="color: var(--text-link);">http://127.0.0.1:8000</a></li>
+          <li><strong>Documentação Técnica Interativa:</strong> <a href="http://127.0.0.1:8000/documentation" target="_blank" style="color: var(--text-link);">http://127.0.0.1:8000/documentation</a></li>
+          <li><strong>Swagger OpenAPI:</strong> <a href="http://127.0.0.1:8000/docs" target="_blank" style="color: var(--text-link);">http://127.0.0.1:8000/docs</a></li>
+          <li><strong>Endpoint Prometheus:</strong> <a href="http://127.0.0.1:8000/metrics" target="_blank" style="color: var(--text-link);">http://127.0.0.1:8000/metrics</a></li>
+        </ul>
+
+        <h3>3. Execução dos Testes Automatizados</h3>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>Terminal</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <pre><code class="language-bash"># Executar todos os 32 testes automatizados
+python -m pytest tests/ -v
+          </code></pre>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 12: GUIA DE EXTENSÃO -->
+      <section id="guia-extensao" class="doc-section">
+        <h2>12. Guia de Extensão do Sistema</h2>
+        <div class="steps-container">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-title">Adicionar Nova Coluna ou Métrica de Negócio</div>
+            <p>
+              1. Adicione a coluna em minúsculas na <code>DEFAULT_ALLOWLIST["faturamento"]</code> em <code>src/sql_agent/guardrails/sql_guardrail.py</code>.
+              <br>2. Documente o campo no <code>_SYSTEM_PROMPT</code> em <code>src/sql_agent/v2/agent.py</code> incluindo pelo menos um exemplo *few-shot*.
+              <br>3. Se a métrica tiver apelidos informais, mapeie a regex no <code>_sanitize_generated_sql</code>.
+            </p>
+          </div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-title">Adicionar Nova Unidade de Negócio (BU)</div>
+            <p>
+              Adicione a nova BU no conjunto <code>KNOWN_BUS</code> em <code>src/sql_agent/guardrails/rls_enforcer.py</code> e atualize o catálogo de usuários no SQLite se necessário.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer style="margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 13px;">
+        <div>
+          Milia AI — Controladoria e Engenharia de Dados &copy; 2026.
+        </div>
+        <div style="display: flex; gap: 16px;">
+          <a href="/home" style="color: var(--text-muted); text-decoration: none;">App</a>
+          <a href="/frontend/demo-animations.html" style="color: var(--text-muted); text-decoration: none;">Showcase UI</a>
+          <a href="https://github.com/roryhon32/AgenteGertc" target="_blank" style="color: var(--text-muted); text-decoration: none;">GitHub</a>
+        </div>
+      </footer>
+
+    </main>
+
+    <!-- RIGHT TABLE OF CONTENTS (TOC) -->
+    <aside class="docs-toc">
+      <div class="toc-title">Nesta Página</div>
+      <ul class="toc-list" id="tocList">
+        <li class="toc-item"><a href="#visao-geral" class="toc-link active">1. Visão Geral</a></li>
+        <li class="toc-item"><a href="#arquitetura" class="toc-link">2. Arquitetura</a></li>
+        <li class="toc-item"><a href="#fluxo-requisicao" class="toc-link">3. As 7 Esteiras</a></li>
+        <li class="toc-item"><a href="#integracao-llm" class="toc-link">4. Integração LLM</a></li>
+        <li class="toc-item"><a href="#isolamento-zero-trust" class="toc-link">5. Zero-Trust</a></li>
+        <li class="toc-item"><a href="#seguranca-governanca" class="toc-link">6. Segurança</a></li>
+        <li class="toc-item"><a href="#modelo-ameacas" class="toc-link">7. Modelo de Ameaças</a></li>
+        <li class="toc-item"><a href="#text-to-sql-vs-rag" class="toc-link">8. Text-to-SQL vs RAG</a></li>
+        <li class="toc-item"><a href="#ciclo-dados" class="toc-link">9. Ciclo dos Dados</a></li>
+        <li class="toc-item"><a href="#estrutura-projeto" class="toc-link">10. Estrutura do Repo</a></li>
+        <li class="toc-item"><a href="#execucao-testes" class="toc-link">11. Execução & Testes</a></li>
+        <li class="toc-item"><a href="#guia-extensao" class="toc-link">12. Guia de Extensão</a></li>
+      </ul>
+    </aside>
+
+  </div>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // INICIALIZAÇÃO DE SINTAXE E DIAGRAMAS MERMAID
+    // -------------------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      hljs.highlightAll();
+
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: document.documentElement.classList.contains("light") ? "default" : "dark",
+        themeVariables: {
+          primaryColor: "#10B981",
+          primaryTextColor: "#FFFFFF",
+          primaryBorderColor: "#059669",
+          lineColor: "#38BDF8",
+          secondaryColor: "#1E293B",
+          tertiaryColor: "#0F172A"
+        }
+      });
+
+      setupScrollspy();
+    });
+
+    // -------------------------------------------------------------------------
+    // COPIAR CÓDIGO PARA A ÁREA DE TRANSFERÊNCIA
+    // -------------------------------------------------------------------------
+    function copyCode(btn) {
+      const codeWrapper = btn.closest(".code-wrapper");
+      const code = codeWrapper.querySelector("pre code").innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.innerText;
+        btn.innerHTML = "<span>Copiado!</span> <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><polyline points='20 6 9 17 4 12'/></svg>";
+        btn.style.borderColor = "var(--emerald-primary)";
+        btn.style.color = "var(--emerald-light)";
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.borderColor = "";
+          btn.style.color = "";
+        }, 2000);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // SCROLLSPY (DESTAQUE AUTOMÁTICO DO TOC E SIDEBAR)
+    // -------------------------------------------------------------------------
+    function setupScrollspy() {
+      const sections = document.querySelectorAll(".doc-section");
+      const tocLinks = document.querySelectorAll(".toc-link");
+      const sidebarLinks = document.querySelectorAll(".sidebar-link");
+
+      window.addEventListener("scroll", () => {
+        let current = "";
+        const scrollPos = window.scrollY + 120;
+
+        sections.forEach((sec) => {
+          const top = sec.offsetTop;
+          const height = sec.offsetHeight;
+          if (scrollPos >= top && scrollPos < top + height) {
+            current = sec.getAttribute("id");
+          }
+        });
+
+        if (current) {
+          tocLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${current}`) {
+              link.classList.add("active");
+            }
+          });
+
+          sidebarLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${current}`) {
+              link.classList.add("active");
+            }
+          });
+        }
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // ALTERNAR TEMA CLARO / ESCURO
+    // -------------------------------------------------------------------------
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById("themeIcon");
+      if (html.classList.contains("dark")) {
+        html.classList.remove("dark");
+        html.classList.add("light");
+        icon.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+        localStorage.setItem("docs-theme", "light");
+      } else {
+        html.classList.remove("light");
+        html.classList.add("dark");
+        icon.innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`;
+        localStorage.setItem("docs-theme", "dark");
+      }
+    }
+
+    // Carregar preferência salva
+    if (localStorage.getItem("docs-theme") === "light") {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      document.getElementById("themeIcon").innerHTML = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    }
+
+    // -------------------------------------------------------------------------
+    // MENU MOBILE TOGGLE
+    // -------------------------------------------------------------------------
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById("docsSidebar");
+      sidebar.classList.toggle("open");
+    }
+
+    // Fechar menu mobile ao clicar em um link
+    document.querySelectorAll(".sidebar-link").forEach(link => {
+      link.addEventListener("click", () => {
+        const sidebar = document.getElementById("docsSidebar");
+        if (sidebar.classList.contains("open")) {
+          sidebar.classList.remove("open");
+        }
+      });
+    });
+
+    // -------------------------------------------------------------------------
+    // BUSCA RÁPIDA / FILTRO DE TÓPICOS
+    // -------------------------------------------------------------------------
+    function filterDocs(e) {
+      const query = e.target.value.toLowerCase().trim();
+      const sections = document.querySelectorAll(".doc-section");
+
+      sections.forEach(sec => {
+        const text = sec.innerText.toLowerCase();
+        if (!query || text.includes(query)) {
+          sec.style.display = "block";
+        } else {
+          sec.style.display = "none";
+        }
+      });
+    }
+
+    // Atalho Ctrl+K ou Cmd+K
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const searchInput = document.getElementById("docSearch");
+        if (searchInput) searchInput.focus();
+      }
+    });
+  </script>
+
+</body>
+</html>
+

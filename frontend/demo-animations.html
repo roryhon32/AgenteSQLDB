@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GSAP Visual Feedback Engine — Demo Interativa</title>
+  
+  <!-- GSAP Core 3.12.5 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <!-- Módulos de Animação -->
+  <script src="/frontend/animations/gsap-feedback.js"></script>
+  <script src="/frontend/animations/auth-transition.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0F172A;
+      --card-bg: #1E293B;
+      --card-border: #334155;
+      --primary: #2563EB;
+      --danger: #EF4444;
+      --danger-hover: #DC2626;
+      --success: #10B981;
+      --success-hover: #059669;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .badge-engine {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(37, 99, 235, 0.35);
+      color: #60A5FA;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Controls Bar */
+    .controls-panel {
+      background: #1E293B;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .toggle-label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .btn-reset {
+      background: #334155;
+      color: #FFFFFF;
+      border: 1px solid #475569;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-reset:hover {
+      background: #475569;
+    }
+
+    /* Grid de Cards */
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #E2E8F0;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .demo-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .demo-card:hover {
+      border-color: #475569;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      width: fit-content;
+      margin-bottom: 10px;
+    }
+
+    .tag-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #F87171;
+    }
+
+    .tag-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+    }
+
+    .tag-info {
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      color: #60A5FA;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-action:active {
+      transform: scale(0.97);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #FFFFFF;
+    }
+    .btn-danger:hover {
+      background: var(--danger-hover);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+    .btn-success:hover {
+      background: var(--success-hover);
+    }
+
+    /* Terminal Log */
+    .log-panel {
+      background: #0B1120;
+      border: 1px solid #1E293B;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: #38BDF8;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .log-time {
+      color: #64748B;
+      margin-right: 6px;
+    }
+
+    /* Table & Row Reject Styling */
+    .pending-table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .demo-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    .demo-table th {
+      background: #0F172A;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .demo-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .demo-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .demo-table tr {
+      transition: background 0.15s ease;
+    }
+
+    .demo-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Decorative Curves Preview Box */
+    .curves-preview-box {
+      width: 100%;
+      height: 240px;
+      background: #082142;
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 163, 255, 0.25);
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+    }
+
+    .curves-preview-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .curved-line-cyan {
+      stroke-dasharray: 800;
+      stroke-dashoffset: 0;
+      animation: cyanCurveFlow 8s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 6px rgba(0, 163, 255, 0.6));
+    }
+
+    .curved-line-yellow {
+      stroke-dasharray: 800;
+      stroke-dashoffset: 0;
+      animation: yellowCurveFlow 7s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 6px rgba(255, 184, 0, 0.5));
+    }
+
+    @keyframes cyanCurveFlow {
+      0% { stroke-dashoffset: 0; opacity: 0.85; }
+      50% { stroke-dashoffset: 60; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0.85; }
+    }
+
+    @keyframes yellowCurveFlow {
+      0% { stroke-dashoffset: 0; opacity: 0.9; }
+      50% { stroke-dashoffset: -50; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0.9; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .curved-line-cyan,
+      .curved-line-yellow {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="badge-engine">GSAP Core 3.12.5 • Zero Plugins Pagos</div>
+      <h1 class="title">Visual Feedback Engine</h1>
+      <p class="subtitle">
+        Animações táteis de alta performance: desintegração física estocástica (Thanos snap)
+        e celebração satisfatória (Check SVG vetorial + confetes em tons de verde).
+      </p>
+    </header>
+
+    <!-- Controls Bar -->
+    <div class="controls-panel">
+      <div class="control-group">
+        <label class="toggle-label">
+          <input type="checkbox" id="chkReducedMotion">
+          <span>Simular <code>prefers-reduced-motion</code> (Fade 150ms)</span>
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label class="toggle-label">
+          <input type="checkbox" id="chkAudio" checked>
+          <span>Áudio Feedback (Web Audio API)</span>
+        </label>
+      </div>
+
+      <button class="btn-reset" onclick="restoreCards()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Restaurar Cards
+      </button>
+    </div>
+
+    <!-- Section 1: Delete Animation -->
+    <div class="section-title">
+      1. Animação de Delete — "Desintegração"
+      <span>(Thanos Snap • Contração pré-sucção • Dispersão caótica)</span>
+    </div>
+
+    <div class="cards-grid" id="deleteGrid">
+
+      <!-- Card 1 -->
+      <div class="demo-card" id="cardDelete1">
+        <div>
+          <span class="card-tag tag-danger">Violação DDL</span>
+          <h3 class="card-title">Tentativa DROP TABLE</h3>
+          <p class="card-desc">
+            Instrução destrutiva interceptada no AST Guardrail vinda do IP 192.168.1.45.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-danger" onclick="handleDelete(event, 'cardDelete1')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Desintegrar Card
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="demo-card" id="cardDelete2">
+        <div>
+          <span class="card-tag tag-danger">Cadastro Suspeito</span>
+          <h3 class="card-title">João Invasor</h3>
+          <p class="card-desc">
+            Solicitou acesso com e-mail não corporativo e múltiplos disparos no Circuit Breaker.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-danger" onclick="handleDelete(event, 'cardDelete2')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Recusar & Dissolver
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="demo-card" id="cardDelete3">
+        <div>
+          <span class="card-tag tag-info">Query Expirada</span>
+          <h3 class="card-title">Cache em Memória DuckDB</h3>
+          <p class="card-desc">
+            Sessão temporária de telemetria analítica com expiração ultrapassada há 4 horas.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-danger" onclick="handleDelete(event, 'cardDelete3')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Expurgar Partículas
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Section 2: Accept Animation -->
+    <div class="section-title">
+      2. Animação de Accept — "Confirmação Satisfatória"
+      <span>(Check SVG animado • Bounce Elástico • Burst de Confete Verde)</span>
+    </div>
+
+    <div class="cards-grid" id="acceptGrid">
+
+      <!-- Card 4 -->
+      <div class="demo-card" id="cardAccept1">
+        <div>
+          <span class="card-tag tag-success">Solicitação Pendente</span>
+          <h3 class="card-title">Mariana Souza (Fiscal)</h3>
+          <p class="card-desc">
+            Analista Fiscal do Rio de Janeiro aguardando liberação de acesso aos dados analíticos.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-success" onclick="handleAccept(event, 'cardAccept1')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 13l4 4L19 7"/>
+            </svg>
+            Aprovar Usuário
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="demo-card" id="cardAccept2">
+        <div>
+          <span class="card-tag tag-success">Incidente Revisado</span>
+          <h3 class="card-title">Auditoria #148 — Seguro</h3>
+          <p class="card-desc">
+            Falso-positivo de consulta analisado e liberado pelo Administrador da plataforma.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-success" onclick="handleAccept(event, 'cardAccept2')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Arquivar com Sucesso
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="demo-card" id="cardAccept3">
+        <div>
+          <span class="card-tag tag-info">Deploy & Sincronização</span>
+          <h3 class="card-title">DuckDB Schema Sync</h3>
+          <p class="card-desc">
+            Migração de colunas com isolamento de BU e integridade hash SHA-256 concluída.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-success" onclick="handleAccept(event, 'cardAccept3')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 13l4 4L19 7"/>
+            </svg>
+            Confirmar Validação
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Section 3: Deny/Reject Micro-interaction -->
+    <div class="section-title">
+      3. Micro-interação — "Negar Usuário Pendente"
+      <span>(Den Dionigi Inspired • 100% OnClick • Zero Dependência de Scroll • Squash + Tremor + Shockwave + Colapso)</span>
+    </div>
+
+    <div class="pending-table-container">
+      <table class="demo-table">
+        <thead>
+          <tr>
+            <th>Nome do Solicitante</th>
+            <th>E-mail Corporativo</th>
+            <th>Unidade de Negócio</th>
+            <th style="text-align: right;">Ação de Recusa</th>
+          </tr>
+        </thead>
+        <tbody id="pendingUsersBody">
+          <tr id="pendingUser1">
+            <td>
+              <div style="font-weight: 700; color: #FFFFFF;">Roberto Campos</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Solicitado há 14 minutos</div>
+            </td>
+            <td>roberto.campos@empresa.com</td>
+            <td><span class="card-tag tag-info" style="margin-bottom: 0;">BU Varejo</span></td>
+            <td style="text-align: right;">
+              <button class="btn-action btn-danger btn-deny" style="margin-left: auto;" onclick="handleDeny(event, 'pendingUser1')">
+                <svg class="deny-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                <span class="btn-text">Negar Usuário</span>
+              </button>
+            </td>
+          </tr>
+          <tr id="pendingUser2">
+            <td>
+              <div style="font-weight: 700; color: #FFFFFF;">Camila Figueira</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Solicitado há 2 horas</div>
+            </td>
+            <td>camila.figueira@empresa.com</td>
+            <td><span class="card-tag tag-success" style="margin-bottom: 0;">BU Corporativo</span></td>
+            <td style="text-align: right;">
+              <button class="btn-action btn-danger btn-deny" style="margin-left: auto;" onclick="handleDeny(event, 'pendingUser2')">
+                <svg class="deny-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                <span class="btn-text">Negar Usuário</span>
+              </button>
+            </td>
+          </tr>
+          <tr id="pendingUser3">
+            <td>
+              <div style="font-weight: 700; color: #FFFFFF;">Leandro Rocha</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Solicitado ontem</div>
+            </td>
+            <td>leandro.rocha@empresa.com</td>
+            <td><span class="card-tag tag-danger" style="margin-bottom: 0;">BU Plataformas</span></td>
+            <td style="text-align: right;">
+              <button class="btn-action btn-danger btn-deny" style="margin-left: auto;" onclick="handleDeny(event, 'pendingUser3')">
+                <svg class="deny-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                <span class="btn-text">Negar Usuário</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 4: Directional Kinetics & Panel Transition -->
+    <div class="section-title">
+      4. Transição Cinematográfica: Container Azul (0.7s) & Linhas Curvas Direcionais
+      <span>(Linhas saem DIREITA / entram ESQUERDA no Login • Inverso exato no Logout • Sem morphing em círculo)</span>
+    </div>
+
+    <!-- Simulação da Área Total com o Bloco Azul dentro -->
+    <div style="width: 100%; height: 320px; background: #0B1120; border-radius: 14px; position: relative; overflow: hidden; border: 1px solid var(--card-border); margin-bottom: 24px; display: flex;">
+      
+      <!-- Bloco Azul Dinâmico Interativo -->
+      <div id="demoBluePanel" style="width: 100%; height: 100%; background: linear-gradient(155deg, #09254B 0%, #051833 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; transition: none; will-change: width, transform; flex-shrink: 0; box-shadow: 4px 0 24px rgba(0,0,0,0.4);">
+        
+        <div style="position: relative; z-index: 2;">
+          <span class="card-tag tag-info" id="demoPanelBadge">Seção Azul: Modo Login (100%)</span>
+          <h3 id="demoPanelTitle" style="font-size: 18px; font-weight: 700; color: #FFFFFF; margin-top: 4px;">Milia AI — Painel Transicional (0.7s)</h3>
+          <p id="demoPanelDesc" style="font-size: 12px; color: #94A3B8; max-width: 480px; margin-top: 4px;">
+            No Login: As linhas saem pela DIREITA, o container azul desliza e encolhe para 260px (0.7s), e as novas linhas entram pela ESQUERDA. No Logout: Caminho inverso exato!
+          </p>
+        </div>
+
+        <!-- Arcos SVG de Login (Saída para a DIREITA no Login, Entrada pela DIREITA no Logout) -->
+        <svg id="demoLoginArches" class="login-arches-bg" viewBox="0 0 1000 600" preserveAspectRatio="none" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+          <defs>
+            <linearGradient id="demoMorphCyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00A3FF" stop-opacity="0.3"/>
+              <stop offset="45%" stop-color="#00A3FF" stop-opacity="0.95"/>
+              <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.85"/>
+            </linearGradient>
+            <linearGradient id="demoMorphYellowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#FFB800" stop-opacity="0.3"/>
+              <stop offset="50%" stop-color="#FFC700" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#FFE066" stop-opacity="0.85"/>
+            </linearGradient>
+          </defs>
+          <path id="demoLineCyan" class="curved-line-cyan is-idle-flow" d="M -40 520 C 260 480, 520 320, 1040 220" stroke="url(#demoMorphCyanGrad)" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          <path id="demoLineYellow" class="curved-line-yellow is-idle-flow" d="M -40 570 C 320 530, 620 400, 1040 310" stroke="url(#demoMorphYellowGrad)" stroke-width="2.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        </svg>
+
+        <!-- Arcos SVG da Sidebar (Entrada pela ESQUERDA no Login, Saída para a ESQUERDA no Logout) -->
+        <svg id="demoSidebarArches" class="sidebar-arches-bg" viewBox="0 0 260 938" style="position: absolute; bottom: 0; left: 0; width: 260px; height: 100%; pointer-events: none; z-index: 1; display: none;">
+          <path class="sidebar-line-cyan is-idle-flow" d="M 0 780 C 80 740, 180 680, 260 650" stroke="#00A3FF" stroke-width="2.6" stroke-linecap="round" opacity="0.9" vector-effect="non-scaling-stroke"/>
+          <path class="sidebar-line-yellow is-idle-flow" d="M 0 820 C 80 780, 180 720, 260 690" stroke="#FFB800" stroke-width="2.4" stroke-linecap="round" opacity="0.95" vector-effect="non-scaling-stroke"/>
+        </svg>
+
+        <!-- Botões de Simulação da Transição -->
+        <div style="display: flex; gap: 10px; position: relative; z-index: 3; flex-wrap: wrap;">
+          <button class="btn-action btn-success" style="flex: initial; padding: 9px 16px;" onclick="testMorphLogin()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            Simular Login (Linhas ➔ DIREITA | Painel ➔ 260px | Linhas ➔ ESQUERDA)
+          </button>
+          <button class="btn-action btn-danger" style="flex: initial; padding: 9px 16px;" onclick="testMorphLogout()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Simular Logout (Linhas ➔ ESQUERDA | Painel ➔ 100% | Linhas ➔ DIREITA)
+          </button>
+          <button class="btn-action" style="flex: initial; background: #334155; color: #FFF; padding: 9px 16px;" onclick="resetMorphDemo()">
+            Resetar Painel
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Área Direita Simulada (Área Branca/Conteúdo) -->
+      <div style="flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 13px; font-weight: 500; border-left: 1px dashed rgba(255,255,255,0.06);">
+        Conteúdo da Aplicação (Área com expansão fluida)
+      </div>
+
+    </div>
+
+    <!-- Log Panel -->
+    <div class="section-title">Console de Execução GSAP</div>
+    <div class="log-panel" id="logConsole">
+      <div class="log-entry"><span class="log-time">[00:00:00]</span> Motor GSAP inicializado. Pronto para interações.</div>
+    </div>
+
+  </div>
+
+  <script>
+    function log(msg) {
+      const consoleEl = document.getElementById('logConsole');
+      const timeStr = new Date().toTimeString().split(' ')[0];
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span> ${msg}`;
+      consoleEl.prepend(entry);
+    }
+
+    // 1. Ação de Desintegração (Delete)
+    function handleDelete(event, cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      const clickPoint = { x: event.clientX, y: event.clientY };
+      const simulateReduced = document.getElementById('chkReducedMotion').checked;
+
+      // Se simular reduced motion manualmente para teste
+      if (simulateReduced) {
+        log(`⚡ [Disintegrate] prefers-reduced-motion ativado: Executando fallback fade de 150ms.`);
+        gsap.to(card, {
+          opacity: 0,
+          duration: 0.15,
+          ease: "power1.out",
+          onComplete: () => {
+            card.remove();
+            log(`✓ [Disintegrate] Card #${cardId} removido do DOM via fallback acessível.`);
+          }
+        });
+        return;
+      }
+
+      log(`💥 [Disintegrate] Disparando Thanos Snap em #${cardId} a partir do clique (${clickPoint.x}, ${clickPoint.y}).`);
+
+      const tl = GSAPFeedback.disintegrate(card, {
+        clickPoint: clickPoint,
+        particleSize: 6,
+        density: 65,
+        collapseHeight: true,
+        removeOnComplete: true,
+        onComplete: () => {
+          log(`✓ [Disintegrate] Elemento #${cardId} desintegrado e removido do DOM com sucesso.`);
+        }
+      });
+    }
+
+    // 2. Ação de Confirmação (Accept)
+    function handleAccept(event, cardId) {
+      const card = document.getElementById(cardId);
+      if (!card) return;
+
+      const playAudio = document.getElementById('chkAudio').checked;
+      const simulateReduced = document.getElementById('chkReducedMotion').checked;
+
+      if (simulateReduced) {
+        log(`⚡ [Accept] prefers-reduced-motion ativado: Executando bounce sutil e tint verde de 150ms.`);
+        gsap.to(card, {
+          backgroundColor: 'rgba(16, 185, 129, 0.25)',
+          duration: 0.15,
+          yoyo: true,
+          repeat: 1,
+          onComplete: () => {
+            log(`✓ [Accept] Ação em #${cardId} concluída via fallback acessível.`);
+          }
+        });
+        return;
+      }
+
+      log(`🎉 [Accept] Disparando Check SVG vetorial + Bounce elástico + Confetes Verdes em #${cardId}.`);
+
+      const tl = GSAPFeedback.acceptFeedback(card, {
+        sound: playAudio,
+        permanentTint: false,
+        confettiCount: 12,
+        onComplete: () => {
+          log(`✓ [Accept] Timeline de confirmação finalizada com sucesso em #${cardId}.`);
+        }
+      });
+    }
+
+    // 3. Ação de Recusa / Negar Usuário (100% OnClick, sem scroll)
+    function handleDeny(event, rowId) {
+      const row = document.getElementById(rowId);
+      const btn = event.currentTarget;
+      if (!row || !btn) return;
+
+      const playAudio = document.getElementById('chkAudio').checked;
+      const simulateReduced = document.getElementById('chkReducedMotion').checked;
+
+      if (simulateReduced) {
+        log(`⚡ [Negar Usuário] prefers-reduced-motion ativado: Executando fade out de 150ms.`);
+        btn.disabled = true;
+        gsap.to(row, {
+          opacity: 0,
+          duration: 0.15,
+          ease: "power1.out",
+          onComplete: () => {
+            row.remove();
+            log(`✓ [Negar Usuário] Linha #${rowId} removida via fallback acessível.`);
+          }
+        });
+        return;
+      }
+
+      log(`⛔ [Negar Usuário] Micro-interação disparada em #${rowId}. Trava imediata do botão + Squash + Tremor + Onda de Choque.`);
+
+      const tl = GSAPFeedback.rejectFeedback(btn, row, {
+        sound: playAudio,
+        removeOnComplete: true,
+        onComplete: () => {
+          log(`✓ [Negar Usuário] Linha #${rowId} colapsada suavemente e lista reorganizada sem cortes.`);
+        }
+      });
+    }
+
+    // 4. Testes Cinéticos de Transição Direcional (Painel 0.7s & Linhas Curvas)
+    let demoActiveTimeline = null;
+
+    function testMorphLogin() {
+      if (demoActiveTimeline) demoActiveTimeline.kill();
+
+      log(`✨ [Transição Cinematográfica] Disparando Login: Linhas saem pela DIREITA, Painel desliza para a esquerda encolhendo para 260px (0.7s), Linhas entram pela ESQUERDA.`);
+
+      const badge = document.getElementById("demoPanelBadge");
+      const title = document.getElementById("demoPanelTitle");
+      const desc = document.getElementById("demoPanelDesc");
+      if (badge) badge.textContent = "Autenticando... Transição do Painel (0.7s)";
+
+      demoActiveTimeline = AuthTransition.createAuthTransition({
+        direction: "in",
+        elements: {
+          bluePanel: document.getElementById("demoBluePanel"),
+          loginArches: document.getElementById("demoLoginArches"),
+          sidebarArches: document.getElementById("demoSidebarArches"),
+          loginRightView: null,
+          loginLeftContent: null,
+          sidebarContent: null,
+          authViewWrapper: null
+        },
+        onComplete: () => {
+          if (badge) {
+            badge.className = "card-tag tag-success";
+            badge.textContent = "Seção Azul: Modo Sidebar (260px)";
+          }
+          if (desc) desc.textContent = "Autenticação concluída! O painel assentou em 260px e as linhas curvas entraram pela esquerda acomodadas na base.";
+          log(`✓ [Transição] Painel assentado em 260px. Curvas posicionadas com sucesso.`);
+        }
+      });
+    }
+
+    function testMorphLogout() {
+      if (demoActiveTimeline) demoActiveTimeline.kill();
+
+      log(`🚀 [Transição Cinematográfica] Disparando Logout: Linhas da sidebar saem pela ESQUERDA, Painel expande para 100% (0.7s), Linhas de login retornam pela DIREITA.`);
+
+      const badge = document.getElementById("demoPanelBadge");
+      const desc = document.getElementById("demoPanelDesc");
+      if (badge) badge.textContent = "Encerrando sessão... Expandindo Painel (0.7s)";
+
+      demoActiveTimeline = AuthTransition.createAuthTransition({
+        direction: "out",
+        elements: {
+          bluePanel: document.getElementById("demoBluePanel"),
+          loginArches: document.getElementById("demoLoginArches"),
+          sidebarArches: document.getElementById("demoSidebarArches"),
+          loginRightView: null,
+          loginLeftContent: null,
+          sidebarContent: null,
+          authViewWrapper: null
+        },
+        onComplete: () => {
+          if (badge) {
+            badge.className = "card-tag tag-info";
+            badge.textContent = "Seção Azul: Modo Login (100%)";
+          }
+          if (desc) desc.textContent = "Sessão encerrada com sucesso! O painel expandiu para 100% e as curvas amplas do rodapé retornaram pela direita.";
+          log(`✓ [Transição] Painel expandido de volta para 100%. Curvas de login restauradas.`);
+        }
+      });
+    }
+
+    function resetMorphDemo() {
+      if (demoActiveTimeline) demoActiveTimeline.kill();
+      const panel = document.getElementById("demoBluePanel");
+      const loginArches = document.getElementById("demoLoginArches");
+      const sidebarArches = document.getElementById("demoSidebarArches");
+      const badge = document.getElementById("demoPanelBadge");
+      const desc = document.getElementById("demoPanelDesc");
+
+      if (panel) gsap.set(panel, { width: "100%", x: 0 });
+      if (loginArches) {
+        gsap.set(loginArches, { display: "block", xPercent: 0, opacity: 1 });
+      }
+      if (sidebarArches) {
+        gsap.set(sidebarArches, { display: "none", xPercent: -120, opacity: 0 });
+      }
+      if (badge) {
+        badge.className = "card-tag tag-info";
+        badge.textContent = "Seção Azul: Modo Login (100%)";
+      }
+      if (desc) {
+        desc.textContent = "No Login: As linhas saem pela DIREITA, o container azul desliza e encolhe para 260px (0.7s), e as novas linhas entram pela ESQUERDA. No Logout: Caminho inverso exato!";
+      }
+      log(`🔄 [Transição] Painel resetado para o estado inicial de Login.`);
+    }
+
+    // 5. Restaurar Cards e Linhas
+    function restoreCards() {
+      location.reload();
+    }
+  </script>
+
+</body>
+</html>
+

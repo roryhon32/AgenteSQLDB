@@ -1,0 +1,22 @@
+[project]
+name = "milia-ai"
+version = "2.0.0"
+description = "Milia AI — Intelligent SQL Agent com arquitetura multi-agente, Guardrails de Escopo e execução segura DuckDB"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "duckdb>=1.1.0",
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langchain-groq>=0.2.0",
+    "langchain-openai>=0.3.0",
+    "sqlglot>=25.0.0",
+    "pydantic>=2.7.0",
+    "pyjwt>=2.8.0",
+    "bcrypt>=4.1.0",
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0",
+    "prometheus-client>=0.20.0",
+]
